@@ -220,3 +220,9 @@ wheels/
 #python
 .mypy_cache/ 
 
+# airflow
+
+airflow.cfg 
+airflow.db
+simple_auth_manager_passwords.json.generated
+logs/
