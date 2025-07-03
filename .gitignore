@@ -217,6 +217,10 @@ wheels/
 # Virtual environments
 .venv
 
+.python-version
+pyproject.toml
+uv.lock
+
 #python
 .mypy_cache/ 
 
@@ -226,3 +230,4 @@ airflow.cfg
 airflow.db
 simple_auth_manager_passwords.json.generated
 logs/
+
