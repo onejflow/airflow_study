@@ -7,6 +7,7 @@ from airflow.providers.standard.operators.bash import BashOperator
 from airflow.providers.standard.operators.empty import EmptyOperator
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
+import logging
 
 with DAG(
         dag_id="1.DAG_example",  # UI상 DAG 화면에 보이는 값. 보통 python파일명과 일치시키는 편
@@ -49,13 +50,14 @@ with DAG(
             print(start_date)
             print(message)
             print(end_date)
+            return message
         # op_kwargs python_callable로 지정된 함수에 전달할 인자(argument)들을 딕셔너리 형태로 정의
         task4 = PythonOperator(
             task_id="task4_with_param",
             python_callable=speaking,
             op_kwargs={'start_date':'{{data_interval_start | ds}}', 
                         'end_date':'{{data_interval_end | ds}}',
-                        'message':'params.target_message'}
+                        'message':'{{params.target_message}}'}
         )
         
         # 의존성 설정
