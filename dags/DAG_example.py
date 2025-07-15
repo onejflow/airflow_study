@@ -5,10 +5,11 @@ import datetime
 import pendulum
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.providers.standard.operators.empty import EmptyOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
 
 with DAG(
-        dag_id="1.bash_operator_with_params_example",  # UI상 DAG 화면에 보이는 값. 보통 python파일명과 일치시키는 편
+        dag_id="1.DAG_example",  # UI상 DAG 화면에 보이는 값. 보통 python파일명과 일치시키는 편
         schedule="0 0 * * *",
         start_date=pendulum.datetime(2025, 7, 1, tz="UTC"),  # "Asia/Seoul"
         catchup=False,  # 현재 날짜와 start_date 간의 차이가 있을 때 이 사이에 누락된 구간에 대해 실행할지 말지에 대한 옵션, 날짜별로 차례로 도는게 아닌 한번에 도는점 주의
@@ -44,10 +45,19 @@ with DAG(
             loop_tasks.append(task)
 
         # task4에서 다른 파라미터를 사용하는 예시
-        task4 = BashOperator(
+        def speaking(start_date, end_date, message, **kwargs):
+            print(start_date)
+            print(message)
+            print(end_date)
+        # op_kwargs python_callable로 지정된 함수에 전달할 인자(argument)들을 딕셔너리 형태로 정의
+        task4 = PythonOperator(
             task_id="task4_with_param",
-            bash_command='echo "{{ params.target_message }}" && echo good',
+            python_callable=speaking,
+            op_kwargs={'start_date':'{{data_interval_start | ds}}', 
+                        'end_date':'{{data_interval_end | ds}}',
+                        'message':'params.target_message'}
         )
+        
         # 의존성 설정
         # task1이 완료된 후, loop_tasks에 포함된 task2, task3가 병렬로 실행
         # loop_tasks의 모든 태스크가 완료된 후, task4와 last_empty_task가 따로 실행
